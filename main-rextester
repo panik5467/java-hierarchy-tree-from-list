@@ -1,0 +1,118 @@
+//'main' method must be in a class 'Rextester'.
+//openjdk version '11.0.5' 
+
+import java.util.*;
+import java.lang.*;
+
+class Rextester
+{  
+static class Node {
+ 
+    private String id;           //Current node id, Example: 2
+    private String pid;     //Parent node id, Example: 1
+ 
+    private String name;       // Example: Two
+ 
+    private Set<Node> children;    //Example: Nodes with IDs 3 & 4
+ 
+    public Node() {
+        super();
+        this.children = new HashSet<>();
+    }
+    public Node(String name, String id, String pid) {
+        this.name = name;
+        this.id = id;
+        this.pid = pid;
+        this.children = new HashSet<>();
+    }
+
+    @Override
+    public String toString() {
+        return "Node [id=" + id + ", pid=" + pid + ", name=" + name + ", children="
+                + children + "]";
+    }
+
+}
+    public static void main(String args[])
+    {
+        Set<Node> nodes = Set.of(
+            new Node("Five", "5", "4"),
+            new Node("Four", "4", "2"),
+            new Node("Two",  "2", "1"),
+            new Node("Three", "3", "2"),
+            new Node("One",   "1", null)
+        );
+ 
+        //convert to a tree
+        createTree(nodes);
+
+     }
+
+    private static void createTree(Set<Node> nodes) {
+ 
+        Map<String, Node> mapTmp = new HashMap<>();
+        
+        //Save all nodes to a map
+        for (Node current : nodes) {
+            mapTmp.put(current.id, current);
+        }
+ 
+        //loop and assign parent/child relationships
+        for (Node current : nodes) {
+            String pid = current.pid;
+ 
+            if (pid != null) {
+                Node parent = mapTmp.get(pid);
+                if (parent != null) {
+                    parent.children.add(current);
+                    mapTmp.put(pid, parent);
+                    mapTmp.put(current.id, current);
+                }
+            }
+ 
+        }
+ 
+    
+        //get the root
+        Node root = null;
+        for (Node node : mapTmp.values()) {
+            if(node.pid == null) {
+                root = node;
+                break;
+            }
+        }
+ 
+        System.out.println(root);
+        
+        Set<Node> result = flatten(root, new HashSet<>());
+        
+        System.out.println("List size = " + result.size());
+        System.out.println(result);
+        
+    }
+
+    
+    /**
+     * .   Recursive method is used to traverse down the tree
+     **/
+ 
+    private static Set<Node> flatten(Node node,  Set<Node> flatList) {
+        
+        if(node != null){
+            Node n = new Node(node.name, node.id, node.pid); // get rid of children & parent references
+            flatList.add(n);
+        }
+        
+        Set<Node> children = node.children;
+        for (Node child : children) {
+            if(child.children != null) {
+                flatten(child, flatList);         // Recursive call - Keep flattening until no more children
+            }
+        }    
+        
+        // stop or exit condition
+        return flatList;
+    }
+    
+    
+}
